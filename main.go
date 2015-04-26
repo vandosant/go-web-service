@@ -3,7 +3,6 @@ package main
 import (
   "net/http"
   "github.com/russross/blackfriday"
-  "fmt"
 )
 
 func main() {
@@ -13,7 +12,6 @@ func main() {
 }
 
 func GenerateMarkdown(rw http.ResponseWriter, r *http.Request) {
-  fmt.Println(r.FormValue("body"))
   markdown := blackfriday.MarkdownCommon([]byte(r.FormValue("body")))
   rw.Write(markdown)
 }
