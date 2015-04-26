@@ -2,6 +2,7 @@ package main
 
 import (
   "net/http"
+  "os"
   "github.com/russross/blackfriday"
 )
 
