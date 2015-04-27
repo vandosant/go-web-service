@@ -1,9 +1,10 @@
 package main
 
 import (
-	"github.com/russross/blackfriday"
 	"net/http"
 	"os"
+	"github.com/russross/blackfriday"
+	"github.com/gorilla/mux"
 )
 
 func main() {
@@ -12,12 +13,20 @@ func main() {
 		port = "8080"
 	}
 
-	http.HandleFunc("/markdown", generateMarkdown)
-	http.Handle("/", http.FileServer(http.Dir("public")))
+	r := mux.NewRouter().StrictSlash(false)
+	r.HandleFunc("/", HomeHandler)
+
+	http.HandleFunc("/markdown", GenerateMarkdown)
 	http.ListenAndServe(":"+port, nil)
 }
 
-func generateMarkdown(rw http.ResponseWriter, r *http.Request) {
+func GenerateMarkdown(rw http.ResponseWriter, r *http.Request) {
+	// accept a post request and generate the formatted output
 	markdown := blackfriday.MarkdownCommon([]byte(r.FormValue("body")))
 	rw.Write(markdown)
+}
+
+func HomeHandler(rw http.ResponseWriter, r *http.Request) {
+	// serve the public directory
+	http.FileServer(http.Dir("public"))
 }
