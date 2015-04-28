@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"os"
 	"github.com/russross/blackfriday"
-	"github.com/gorilla/mux"
+	"github.com/microcosm-cc/bluemonday"
 )
 
 func main() {
@@ -13,17 +13,16 @@ func main() {
 		port = "8080"
 	}
 
-	r := mux.NewRouter().StrictSlash(false)
-	r.HandleFunc("/", HomeHandler)
-
 	http.HandleFunc("/markdown", GenerateMarkdown)
+	http.Handle("/", http.FileServer(http.Dir("public")))
 	http.ListenAndServe(":"+port, nil)
 }
 
 func GenerateMarkdown(rw http.ResponseWriter, r *http.Request) {
 	// accept a post request and generate the formatted output
 	markdown := blackfriday.MarkdownCommon([]byte(r.FormValue("body")))
-	rw.Write(markdown)
+	html := bluemonday.UGCPolicy().SanitizeBytes(markdown)
+	rw.Write(html)
 }
 
 func HomeHandler(rw http.ResponseWriter, r *http.Request) {
